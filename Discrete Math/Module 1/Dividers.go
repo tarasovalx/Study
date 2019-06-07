@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"sort"
 )
 
@@ -70,9 +71,8 @@ func BuildGraph(n int, N int) {
 	fmt.Printf("}")
 }
 
-/*
 func main() {
 	var n int
 	fmt.Scan(&n)
 	BuildGraph(int(math.Sqrt(float64(n)))+1, n)
-}*/
+}

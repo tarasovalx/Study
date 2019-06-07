@@ -1,89 +1,74 @@
 package main
 
 import (
-	"fmt"
+        "fmt"
+        "github.com/skorobogatov/input" 
 )
 
 func main() {
-	var n, m, a, b int
-	fmt.Scanf("%d\n%d\n", &n, &m)
+    var n, m, a, b int
+	var edges []int
+	input.Scanf("%d%d", &n, &m)
 
 	graphTable := make([][]int, n)
-	componentsLengths := make([]int, n)
-	edges := make([]int, n)
 
 	for i := 0; i < m; i++ {
-		fmt.Scanf("%d %d\n", &a, &b)
+		input.Scanf("%d%d\n", &a, &b)
 		edges = append(edges, a, b)
 		graphTable[a] = append(graphTable[a], b)
 		graphTable[b] = append(graphTable[b], a)
 	}
-	compMask := make([]bool, n)
-	comp, iMax := findMaxComponent(graphTable, &componentsLengths)
+	color, colors := findMaxComponent(&graphTable, n)
 
-	for _, val := range comp {
-		compMask[val] = true
-	}
-	var g int
 	fmt.Printf("graph {\n")
 	for i := 0; i < n; i++ {
-		//if compMask[i] {
-		if componentsLengths[i] == iMax {
-			g = i
+		if colors[i] == color {
 			fmt.Printf("    %d [color = red]\n", i)
 		} else {
 			fmt.Printf("    %d\n", i)
 		}
-
-		if len(graphTable) > 0 {
-			for j := 0; j < len(edges); j += 2 {
-				if iMax < graphTable[g][j/2] {
-					continue
-				}
-				if componentsLengths[graphTable[g][j/2]] == iMax { //compMask[edges[i]] || compMask[edges[i+1]] {
-					fmt.Printf("    %d -- %d [color = red]\n", edges[j], edges[j+1])
-				} else {
-					fmt.Printf("    %d -- %d\n", edges[j], edges[j+1])
-				}
-			}
+	}
+	for i := 0; i < len(edges); i += 2 {
+		if colors[edges[i]] == color || color == colors[edges[i+1]] {
+			fmt.Printf("    %d -- %d [color = red]\n", edges[i], edges[i+1])
+		} else {
+			fmt.Printf("    %d -- %d\n", edges[i], edges[i+1])
 		}
 	}
-
 	fmt.Printf("}")
 }
 
-func dfs(start int, graph [][]int, used []bool, component *[]int, edges *int, componentsLengths *[]int, ind int) {
-	used[start] = true
-	*component = append(*component, start)
-	(*componentsLengths)[start] = ind
-
-	for i := 0; i < len(graph[start]); i++ {
-		to := graph[start][i]
+func dfs(start int, graph *[][]int, used *[]int, vertexes *int, edges *int, color int) {
+	(*used)[start] = color
+	*vertexes++
+	for i := 0; i < len((*graph)[start]); i++ {
 		*edges++
-		if !used[to] {
-			dfs(to, graph, used, component, edges, componentsLengths, ind)
+		to := (*graph)[start][i]
+		if (*used)[to] == -1 {
+			dfs(to, graph, used, vertexes, edges,color)
 		}
 	}
 }
 
-func findMaxComponent(graph [][]int, mc *[]int) ([]int, int) {
-	used := make([]bool, len(graph))
-	var maxComponent []int
-	var maxVertexes int
-	var indexOfMaxComp int
-	for i := 0; i < len(graph); i++ {
-		var comp []int
-		if !used[i] {
+func findMaxComponent(graph *[][]int, n int) (int, []int) {
+	used := make([]int, n)
+	for i := 0; i < n; i++ {
+		used[i] = -1
+	}
+	maxComponentColor := -1
+	var maxCompLength int
+	var maxEdges int
+	for i := 0; i < n; i++ {
+		if used[i] == -1 {
+			vertexes := 0
 			edges := 0
-			dfs(i, graph, used, &comp, &edges, mc, i)
-			edges /= 2
-			if (len(comp) > len(maxComponent)) || ((len(comp) == len(maxComponent)) && (edges > maxVertexes)) {
-				indexOfMaxComp = i
-				maxVertexes = edges
-				maxComponent = make([]int, len(comp))
-				copy(maxComponent, comp)
+			dfs(i, graph, &used, &vertexes, &edges, i)
+			if (vertexes > maxCompLength) || ((vertexes == maxCompLength) && (edges > maxEdges)) {
+				maxEdges = edges	
+				maxCompLength = vertexes
+				maxComponentColor = i
 			}
 		}
 	}
-	return maxComponent, indexOfMaxComp
+	return maxComponentColor, used
 }
