@@ -1,0 +1,25 @@
+{
+    "Hosts" : 
+    [
+        {
+            "User" : "tarasov",
+            "Password" : "1234567890",
+            "Host" : "lab2.posevin.com:22"
+        },
+        {
+            "User" : "tarasov",
+            "Password" : "1234567890",
+            "Host" : "lab2.posevin.com:22"
+        },
+        {
+            "User" : "tarasov",
+            "Password" : "1234567890",
+            "Host" : "lab2.posevin.com:22"
+        },
+        {
+            "User" : "tarasov",
+            "Password" : "1234567890",
+            "Host" : "lab2.posevin.com:22"
+        }
+    ]
+}

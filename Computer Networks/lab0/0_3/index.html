@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+    </head>
+
+    <body>
+        <header>
+            <!--Hardcoded links-->
+            <a href="/lenta">Lenta</a>
+            <a href="/news">News</a>
+        </header>
+        <div>
+            <!--Шаблон для генерации html с новостями-->
+            {{range .Items}}
+                <div>
+                    <b>{{ .Title}}</b>
+                    <div>{{ .Content}}</div>
+                    <p>Источник: {{ .Source}}</p>
+                </div>
+            {{end}}
+        </div>
+    </body>
+</html>
