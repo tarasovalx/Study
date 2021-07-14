@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Error</title>
+    <link rel="icon" href="data:,">
+</head>
+
+<body>
+<h1>
+    {{.Message}}
+</h1>
+<form action=client/{{.RedirectURL}} method="GET">
+    <input type="submit" value="Вернуться назад">
+</form>
+</body>
+
+</html>

@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"net/smtp"
 	"os"
 	"strconv"
@@ -45,14 +46,13 @@ func (i Intent) Mathces(s string) bool {
 var (
 	cfg     *Config
 	path    = flag.String("cfgPath", "./cfg.json", "Configuration Path")
-	intents *[]Intent
 	key     = []byte("passphrasewhichneedstobe32bytes!")
 )
 
 func parsecfg() {
 	file, err := os.OpenFile(*path, os.O_RDONLY|os.O_CREATE, os.ModePerm.Perm())
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer file.Close()
 	decoder := json.NewDecoder(file)
@@ -63,31 +63,25 @@ func parsecfg() {
 	}
 }
 
-func stringToByte32(s string) []byte {
-	out := make([]byte, 32)
-	copy(out[0:], s)
-	return out
-}
-
 func updatecfg(cfg *Config) {
 	file, err := os.OpenFile(*path, os.O_WRONLY|os.O_CREATE, os.ModePerm.Perm())
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer file.Close()
 
 	tmp := *cfg
 	key := []byte("passphrasewhichneedstobe32bytes!")
 	c, _ := aes.NewCipher(key)
-	encryptedpwd := make([]byte, 32)
+	encryptedPass := make([]byte, 32)
 
-	c.Encrypt(encryptedpwd, cfg.Pwd)
-	cfg = &Config{tmp.Username, tmp.Host, tmp.Port, encryptedpwd}
+	c.Encrypt(encryptedPass, cfg.Pwd)
+	cfg = &Config{tmp.Username, tmp.Host, tmp.Port, encryptedPass}
 
 	data, err := json.Marshal(cfg)
 	_, err = file.Write(data)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
@@ -115,28 +109,28 @@ func mainMenuIntent(input io.Reader, output io.Writer) {
 				encryptedpwd := make([]byte, 32)
 				c.Decrypt(encryptedpwd, cfg.Pwd)
 
-				conn, err := tls.Dial("tcp", cfg.Host+":"+strconv.Itoa(cfg.Port), tlsconfig)
+				conn, err := tls.Dial("tcp", cfg.Host+":"+strconv.Itoa(cfg.Port), tlsConfig)
 				if err != nil {
-					panic(err)
+					log.Fatal(err)
 				}
 
 				smtpClient, err = smtp.NewClient(conn, cfg.Host)
 				if err != nil {
-					panic(err)
+					log.Fatal(err)
 				}
 
 				auth := smtp.PlainAuth("", cfg.Username, string(encryptedpwd), cfg.Host)
 
 				if err = smtpClient.Auth(auth); err != nil {
-					panic(err)
+					log.Fatal(err)
 				}
 
 				if err = smtpClient.Rcpt(to); err != nil {
-					panic(err)
+					log.Fatal(err)
 				}
 
 				w, _ := smtpClient.Data()
-				fmt.Fprintf(w, "To:%s\r\nFrom:%s\r\nSubject:\r\n\r\ns%\r\n", to, cfg.Username, subj, body)
+				fmt.Fprintf(w, "To:%s\r\nFrom:%s\r\nSubject:%s\r\nBody:%s", to, cfg.Username, subj, body)
 				defer smtpClient.Quit()
 			}),
 		CreateIntent("exit",
@@ -169,14 +163,14 @@ func mainMenuIntent(input io.Reader, output io.Writer) {
 				cfg = &Config{username, host, port, bpwd}
 				updatecfg(cfg)
 				//connect and auth
-				tlsconfig = &tls.Config{
+				tlsConfig = &tls.Config{
 					InsecureSkipVerify: true,
 					ServerName:         cfg.Host + ":" + strconv.Itoa(cfg.Port),
 				}
 
-				_, err := tls.Dial("tcp", cfg.Host+":"+strconv.Itoa(cfg.Port), tlsconfig)
+				_, err := tls.Dial("tcp", cfg.Host+":"+strconv.Itoa(cfg.Port), tlsConfig)
 				if err != nil {
-					panic(err)
+					log.Fatal(err)
 				}
 
 			})}
@@ -197,21 +191,17 @@ func mainMenuIntent(input io.Reader, output io.Writer) {
 	}
 }
 
-var tlsconfig *tls.Config
+var tlsConfig *tls.Config
 var smtpClient *smtp.Client
 
 func main() {
 	flag.Parse()
 	parsecfg()
 	if cfg != nil {
-		tlsconfig = &tls.Config{
+		tlsConfig = &tls.Config{
 			InsecureSkipVerify: true,
 			ServerName:         cfg.Host,
 		}
 	}
 	mainMenuIntent(os.Stdin, os.Stdout)
 }
-
-//tarasovtest@ya.ru
-//riznvqaairnjmntd
-//

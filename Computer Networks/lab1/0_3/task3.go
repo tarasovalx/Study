@@ -11,13 +11,12 @@ import (
 	"flag"
 	"log"
 
-	filedriver "github.com/goftp/file-driver"
+	fileDriver "github.com/goftp/file-driver"
 	"github.com/goftp/server"
 )
 
-var login, password = "admin", "123"
+var login, password = "***", "***"
 
-//Connect
 func ConnectAndAuth(url, login, password string) *ftp.ServerConn {
 	connection, err := ftp.Connect(url)
 	if err != nil {
@@ -38,7 +37,7 @@ func RunServer() *server.Server {
 		log.Fatalf("Please set a root to serve with -root")
 	}
 
-	factory := &filedriver.FileDriverFactory{
+	factory := &fileDriver.FileDriverFactory{
 		RootPath: *root,
 		Perm:     server.NewSimplePerm("user", "group"),
 	}
@@ -50,15 +49,14 @@ func RunServer() *server.Server {
 		Auth:     &server.SimpleAuth{Name: *user, Password: *pass},
 	}
 
-	log.Printf("Starting ftp server on %v:%v", opts.Hostname, opts.Port)
+	log.Printf("Starting ftp ftpServer on %v:%v", opts.Hostname, opts.Port)
 	log.Printf("Server root dir %s", *root)
 	log.Printf("Username %v, Password %v", *user, *pass)
-	server := server.NewServer(opts)
-	err := server.ListenAndServe()
-	if err != nil {
-		log.Fatal("Error starting server:", err)
+	ftpServer := server.NewServer(opts)
+	if err := ftpServer.ListenAndServe(); err != nil {
+		log.Fatal("Error starting ftpServer:", err)
 	}
-	return server
+	return ftpServer
 }
 
 var (
@@ -81,7 +79,7 @@ func UploadFile(srcPath string, destPath string, connection *ftp.ServerConn) {
 
 	err = connection.Stor(destPath, reader)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
@@ -89,20 +87,20 @@ func WriteFile(path string, data *[]byte) {
 	file, _ := os.Create(path)
 	_, err := file.Write(*data)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
 func DownloadFile(srcPath, destPath string, connection *ftp.ServerConn) {
 	r, err := connection.Retr(srcPath)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer r.Close()
 
 	buf, err := ioutil.ReadAll(r)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	WriteFile(destPath, &buf)
@@ -127,7 +125,7 @@ func RetriveDir(path string, connection *ftp.ServerConn) {
 func main() {
 	_ = RunServer()
 	localFtp := ConnectAndAuth("localhost:3030", login, password)
-	remoteFtp := ConnectAndAuth("students.yss.su:21", "ftpiu8", "3Ru7yOTA")
+	remoteFtp := ConnectAndAuth("students.yss.su:21", "ftpuser", "*****")
 	Init(localFtp, "")
 	Init(remoteFtp, "./tat")
 }

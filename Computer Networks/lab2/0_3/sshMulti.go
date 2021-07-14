@@ -1,6 +1,5 @@
 package main
 
-///Импорт библиотек
 import (
 	"bufio"
 	"encoding/json"
@@ -34,31 +33,29 @@ var (
 	channel chan cmdTask
 )
 
-//Парсинг конфигурации из json
-func parsecfg() {
+func parseConfig() {
 	file, err := os.Open("./cfg.json")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer file.Close()
 	decoder := json.NewDecoder(file)
 	cfg = configuration{}
 	err = decoder.Decode(&cfg)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
-///Точка входа в программу
 func main() {
-	fmt.Println("Welcome to multy ssh client")
+	fmt.Println("Welcome to multi ssh client")
 	flag.Parse()
+
 	channel = make(chan cmdTask)
 	timeout := time.After(25 * time.Second)
-
-	parsecfg()
-
+	parseConfig()
 	fmt.Println(cfg)
+
 	clients = make([]*ssh.Client, len(cfg.Hosts))
 	for i, h := range cfg.Hosts {
 		client, e := ssh.Dial("tcp", h.Host, &ssh.ClientConfig{
@@ -81,7 +78,7 @@ func main() {
 			continue
 		}
 		for _, c := range clients {
-			go execcmd(strings.TrimSpace(cmd), c)
+			go executeCommand(strings.TrimSpace(cmd), c)
 		}
 		for i := len(clients); i != 0; {
 			select {
@@ -101,16 +98,15 @@ func main() {
 	}
 }
 
-func execcmd(cmd string, c *ssh.Client) {
+func executeCommand(cmd string, c *ssh.Client) {
 	start := time.Now()
 	session, e := c.NewSession()
 	if e != nil {
-		panic(e)
+		log.Fatal(e)
 	}
 
 	o, e := session.Output(cmd)
-	channel <- cmdTask{host: c.Conn.RemoteAddr(),
-		cmd: string(o)}
+	channel <- cmdTask{host: c.Conn.RemoteAddr(), cmd: string(o)}
 	fmt.Printf("Estimated time %f\n", time.Now().Sub(start).Seconds())
 	defer session.Close()
 }

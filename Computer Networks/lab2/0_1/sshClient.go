@@ -1,6 +1,5 @@
 package main
 
-///Импорт библиотек
 import (
 	"bufio"
 	"flag"
@@ -12,21 +11,18 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-///Конфигурация аргументов командной строки по умолчанию
 var (
-	user     = flag.String("u", "tarasov", "User name")
-	password = flag.String("pwd", "1234567890", "Password")
-	host     = flag.String("h", "lab2.posevin.com", "Host")
+	user     = flag.String("u", "login", "User name")
+	password = flag.String("pwd", "pass", "Password")
+	host     = flag.String("h", "host", "Host")
 	port     = flag.String("p", "22", "Port")
 )
 
 var client *ssh.Client
 
-///Точка входа в программу
 func main() {
+	var err error
 	flag.Parse()
-
-	///Конфигурация ssh клиента
 	config := &ssh.ClientConfig{
 		User: *user,
 		Auth: []ssh.AuthMethod{
@@ -34,29 +30,26 @@ func main() {
 		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
-	var err error
 
-	client, err = ssh.Dial("tcp", *host+":"+*port, config)
-	if err != nil {
-		panic(err)
+
+	if client, err = ssh.Dial("tcp", *host+":"+*port, config);err != nil {
+		log.Fatal(err)
 	}
 
 	fmt.Printf("Connected to %s:%s ...", *host, *port)
-
 	reader := bufio.NewReader(os.Stdin)
 
-	///Считываем ввод до ctrl+C или до exit
 	for {
 		fmt.Printf("> ")
 		cmd, _ := reader.ReadString('\n')
-		execcmd(strings.TrimSpace(cmd))
+		executeCommand(strings.TrimSpace(cmd))
 		if cmd == "exit" {
-			return
+			os.Exit(0)
 		}
 	}
 }
 
-func execcmd(cmd string) {
+func executeCommand(cmd string) {
 	session, _ := client.NewSession()
 	resp, err := session.Output(cmd)
 	if err != nil {

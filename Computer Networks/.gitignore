@@ -1,0 +1,4 @@
+./**/*.docx
+./**/*.log
+./idea
+./vscode

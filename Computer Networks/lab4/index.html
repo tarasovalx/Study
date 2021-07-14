@@ -1,0 +1,34 @@
+<head>
+    <meta charset="utf-8">
+    <title>Новости с ленты</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+</head>
+
+<body>
+    <header>
+    </header>
+
+    <body>
+        <section class="cards">
+        {{range .}}
+        <article class="card card--1">
+            <a href="http://lenta.ru{{.Ref}}" class="card_link">
+                <div class="card__info">
+                    <!-- <span class="card__category"> Новости</span> -->
+                    <h3 class="card__title">
+                        {{.Title}}
+                    </h3>
+                </div>
+            </a>
+            <div class="card__info-hover">
+                <div class="card__clock-info">
+                    <span class="card__time">
+                        {{ .Time}}
+                    </span>
+                </div>
+            </div>
+        </article>
+        {{end}}
+        </section>
+    </body>
+</body>
