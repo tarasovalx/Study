@@ -15,7 +15,7 @@ to lauch run string below in terminal
 - Lab 2. Projection. Three-point projection
 - Lab 3. Geometryc modeling. Polygonal meshes. Generation of extrusion mold
 - Lab 4. Rasterization of an arbitrary polygon. Scan line by line with a list of active edges
-- Lab 5. Clipping algorithms. Kirus-Beck algorithm
+- Lab 5. Clipping algorithms. Cyrus-Beck algorithm
 - Lab 6. Formation of realistic images. Phong illumination. Texturing.
 - Lab 7. OpenGL applications optimisation.
 - Lab 8. Shaders. Phong shading.
@@ -31,3 +31,6 @@ In lab 5  click ```MOUSE_LEFT``` to enter cutting lines, ```MOUSE_RIGHT``` to en
 
 
 ## Demo
+### lab 1
+https://user-images.githubusercontent.com/24374749/125707335-f955b75a-14d3-44e2-a37c-d5c98cc07634.mp4
+
