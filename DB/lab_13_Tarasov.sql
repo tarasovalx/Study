@@ -1,0 +1,116 @@
+USE master;
+
+DROP DATABASE IF EXISTS LAB13_1
+CREATE DATABASE LAB13_1 ON(
+    NAME=LAB13_1DB,
+    FILENAME='C:\data\lab13_1bd.mdf',
+    SIZE=10,
+    MAXSIZE=UNLIMITED,
+    FILEGROWTH=5%
+)
+
+LOG ON(
+    NAME=LAB13_1LOG,
+    FILENAME='C:\data\lab13_1log.ldf',
+    SIZE=5MB,
+    MAXSIZE=25MB,
+    FILEGROWTH=5MB
+)
+
+USE LAB13_1;
+DROP TABLE IF EXISTS Artist
+CREATE TABLE Artist(
+	ArtistId INT PRIMARY KEY CHECK (ArtistId <= 5),
+	ArtistName NVARCHAR(60) NOT NULL,
+	Country NVARCHAR(60) NOT NULL
+)
+
+
+DROP DATABASE IF EXISTS LAB13_2
+CREATE DATABASE LAB13_2 ON(
+    NAME=LAB13_2DB,
+    FILENAME='C:\data\lab13_2bd.mdf',
+    SIZE=10,
+    MAXSIZE=UNLIMITED,
+    FILEGROWTH=5%
+)
+
+LOG ON(
+    NAME=LAB13_2LOG,
+    FILENAME='C:\data\lab13_2log.ldf',
+    SIZE=5MB,
+    MAXSIZE=25MB,
+    FILEGROWTH=5MB
+)
+
+USE LAB13_2;
+DROP TABLE IF EXISTS Artist
+CREATE TABLE Artist(
+	ArtistId INT PRIMARY KEY CHECK (ArtistId > 5),
+	ArtistName NVARCHAR(60) NOT NULL,
+	Country NVARCHAR(60) NOT NULL
+)
+
+
+DROP DATABASE IF EXISTS LAB13_3
+CREATE DATABASE LAB13_3 ON(
+    NAME=LAB13_3DB,
+    FILENAME='C:\data\lab13_3bd.mdf',
+    SIZE=10,
+    MAXSIZE=UNLIMITED,
+    FILEGROWTH=5%
+)
+
+LOG ON(
+    NAME=LAB13_3LOG,
+    FILENAME='C:\data\lab13_3log.ldf',
+    SIZE=5MB,
+    MAXSIZE=25MB,
+    FILEGROWTH=5MB
+)
+
+USE LAB13_3;
+DROP VIEW IF EXISTS ArtistView
+GO
+
+INSERT INTO LAB13_1.dbo.Artist VALUES
+(1,'NAME1', 'UK')
+
+INSERT INTO LAB13_2.dbo.Artist VALUES
+(6,'NAME6', 'US')
+
+
+SELECT * FROM LAB13_1.dbo.Artist
+SELECT * FROM LAB13_2.dbo.Artist
+
+GO
+CREATE VIEW ArtistView AS
+	SELECT * FROM LAB13_1.dbo.Artist
+		UNION ALL	
+	SELECT * FROM LAB13_2.dbo.Artist
+GO
+
+INSERT INTO ArtistView VALUES
+(2,'NAME3','US'),
+(7,'NAME4','RU')
+GO
+
+SELECT * FROM ArtistView
+SELECT * FROM LAB13_1.dbo.Artist
+SELECT * FROM LAB13_2.dbo.Artist
+
+UPDATE ArtistView SET ArtistName = ('Prefix' + ArtistName) WHERE Country = 'US' 
+
+SELECT * FROM ArtistView
+SELECT * FROM LAB13_1.dbo.Artist
+SELECT * FROM LAB13_2.dbo.Artist
+
+DELETE FROM ArtistView WHERE Country = 'US' 
+
+SELECT * FROM ArtistView
+SELECT * FROM LAB13_1.dbo.Artist
+SELECT * FROM LAB13_2.dbo.Artist
+
+
+
+
