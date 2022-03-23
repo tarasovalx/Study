@@ -1,0 +1,8 @@
+S -> bN
+S -> aM
+M -> aS
+S -> bS
+N -> aL
+L -> aN
+S -> a
+N -> d
